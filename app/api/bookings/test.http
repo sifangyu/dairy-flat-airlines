@@ -1,0 +1,8 @@
+POST http://localhost:3000/api/bookings
+Content-Type: application/json
+
+{
+  "flightId": "FL001",
+  "name": "Tianyu Li",
+  "email": "lty17635477222@163.com"
+}
