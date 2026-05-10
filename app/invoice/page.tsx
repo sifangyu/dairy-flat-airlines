@@ -1,24 +1,24 @@
 "use client";
+
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
 import { AIRPORT_NAMES } from "@/lib/airports";
 
 const fmtLocal = (utc: number) => {
   return new Date(utc).toLocaleString("en-NZ", {
     dateStyle: "long",
-    timeStyle: "short"
+    timeStyle: "short",
   });
 };
 
-export default function InvoicePage() {
+function InvoiceContent() {
   const params = useSearchParams();
   const router = useRouter();
 
   const ref = params.get("ref");
   const name = params.get("name");
   const email = params.get("email");
-
 
   const [seat, setSeat] = useState("");
   const [gate, setGate] = useState("");
@@ -27,7 +27,6 @@ export default function InvoicePage() {
     setSeat(`${Math.floor(Math.random() * 30) + 1}A`);
     setGate(`${Math.floor(Math.random() * 10) + 1}`);
   }, []);
-
 
   const cancelBooking = async () => {
     await fetch("/api/bookings", {
@@ -45,19 +44,19 @@ export default function InvoicePage() {
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-6 py-16">
-
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
 
-          {/* Header */}
           <div className="bg-blue-600 text-white text-center py-6">
-            <h1 className="text-3xl font-bold">✈ Dairy Flat Airlines</h1>
-            <p className="opacity-80 text-sm">Official Booking Receipt</p>
+            <h1 className="text-3xl font-bold">
+              ✈ Dairy Flat Airlines
+            </h1>
+            <p className="opacity-80 text-sm">
+              Official Booking Receipt
+            </p>
           </div>
 
-          {/* Body */}
           <div className="p-10 space-y-5 text-gray-700">
 
-            {/* Passenger */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-500">Booking Ref</span>
@@ -75,30 +74,36 @@ export default function InvoicePage() {
               </div>
             </div>
 
-            {/* Flight Info */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Flight</span>
-                <span className="font-semibold">{params.get("flightNo")}</span>
+                <span className="font-semibold">
+                  {params.get("flightNo")}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Route</span>
                 <span>
-                  {AIRPORT_NAMES[params.get("origin") || ""]} →{" "}
+                  {AIRPORT_NAMES[params.get("origin") || ""]} →
+                  {" "}
                   {AIRPORT_NAMES[params.get("destination") || ""]}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Departure</span>
-                <span>{fmtLocal(Number(params.get("depUtc")))}</span>
+                <span>
+                  {fmtLocal(Number(params.get("depUtc")))}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Arrival</span>
-                <span>{fmtLocal(Number(params.get("arrUtc")))}</span>
+                <span>
+                  {fmtLocal(Number(params.get("arrUtc")))}
+                </span>
               </div>
 
               <div className="flex justify-between">
@@ -112,17 +117,15 @@ export default function InvoicePage() {
               </div>
             </div>
 
-            {/* Price */}
             <div className="flex justify-between text-lg pt-4 border-t">
               <span className="font-semibold">Total Fare</span>
+
               <span className="text-blue-700 font-bold">
                 ${params.get("price")} NZD
               </span>
             </div>
-
           </div>
 
-          {/* Actions */}
           <div className="p-6 flex justify-center gap-4 bg-gray-50">
 
             <button
@@ -139,17 +142,28 @@ export default function InvoicePage() {
               Return to Flight Search
             </button>
 
-          
+            <button
+              onClick={cancelBooking}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+            >
+              Cancel Booking
+            </button>
 
           </div>
-
         </div>
 
         <p className="text-center text-sm text-gray-400 mt-6">
           This invoice confirms your flight booking.
         </p>
-
       </div>
     </div>
+  );
+}
+
+export default function InvoicePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InvoiceContent />
+    </Suspense>
   );
 }
