@@ -1,9 +1,15 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import Navbar from "@/app/components/Navbar";
+
 import { FLIGHT_TIMETABLE } from "@/lib/timetable";
 import { AIRPORT_NAMES } from "@/lib/airports";
+
+import { fmtAirportTime } from "@/lib/time";
+import { AIRPORT_TIME_INFO } from "@/lib/timezones";
 
 type Schedule = {
   _id: string;
@@ -20,9 +26,15 @@ export default function Flights() {
 
   const [orig, setOrig] = useState("NZNE");
   const [dest, setDest] = useState("YSSY");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
+  const [startDate, setStartDate] =
+    useState("");
+
+  const [endDate, setEndDate] =
+    useState("");
+
+  const [schedules, setSchedules] =
+    useState<Schedule[]>([]);
 
   // Booking Modal
   const [selectedFlight, setSelectedFlight] =
@@ -40,8 +52,10 @@ export default function Flights() {
   const [email, setEmail] =
     useState("");
 
-  // Restricted flight routes
-  const validDestinations = (from: string) => {
+  // Restricted routes
+  const validDestinations = (
+    from: string
+  ) => {
     if (from === "NZNE") {
       return [
         "YSSY",
@@ -55,7 +69,7 @@ export default function Flights() {
     return ["NZNE"];
   };
 
-  // Get minimum date for departure (today or tomorrow if today's flights have departed)
+  // Minimum date
   const getMinDate = () => {
     const now = new Date();
 
@@ -74,7 +88,6 @@ export default function Flights() {
           f.depUtcMin > currentMin
       );
 
-    // If no more flights today, set min date to tomorrow
     if (remainingFlights.length === 0) {
       const tomorrow = new Date();
 
@@ -111,16 +124,15 @@ export default function Flights() {
     setSchedules(data);
   };
 
-  // Select flight to book
+  // Open booking modal
   const book = (sched: Schedule) => {
     setSelectedFlight(sched);
   };
 
-  //  Confirm booking and redirect to invoice page
+  // Confirm booking
   const confirmBooking = async () => {
     if (!selectedFlight) return;
 
-    // Basic validation
     if (
       !firstName.trim() ||
       !lastName.trim() ||
@@ -133,7 +145,6 @@ export default function Flights() {
       return;
     }
 
-    // Simple email format check
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -184,15 +195,6 @@ export default function Flights() {
         `&ref=${ref}`
     );
   };
-
-  const fmt = (utc: number) =>
-    new Date(utc).toLocaleString(
-      "en-NZ",
-      {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }
-    );
 
   return (
     <div className="bg-gradient-to-br from-gray-100 to-blue-50 min-h-screen">
@@ -322,7 +324,7 @@ export default function Flights() {
             </div>
           </div>
 
-          {/* Search Button */}
+          {/* Search */}
           <button
             onClick={search}
             className="mt-8 w-full bg-blue-600 hover:bg-blue-700 transition text-white p-4 rounded-xl font-semibold shadow-md"
@@ -377,33 +379,67 @@ export default function Flights() {
               {/* Times */}
               <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center mb-4">
 
+                {/* Departure */}
                 <div className="text-center">
                   <div className="font-semibold text-lg">
                     Departure
                   </div>
 
                   <div className="text-gray-500 text-sm">
-                    {fmt(
-                      s.depUtc
-                    )}
+                    {fmtAirportTime(
+                      s.depUtc,
+                      s.origin
+                    )}{" "}
+                    {
+                      AIRPORT_TIME_INFO[
+                        s.origin
+                      ]?.label
+                    }
+                  </div>
+
+                  <div className="text-xs text-gray-400 mt-1">
+                    {
+                      AIRPORT_TIME_INFO[
+                        s.origin
+                      ]?.city
+                    }{" "}
+                    Local Time
                   </div>
                 </div>
 
+                {/* Plane */}
                 <div className="text-2xl text-gray-400">
                   ✈
                 </div>
 
+                {/* Arrival */}
                 <div className="text-center">
                   <div className="font-semibold text-lg">
                     Arrival
                   </div>
 
                   <div className="text-gray-500 text-sm">
-                    {fmt(
-                      s.arrUtc
-                    )}
+                    {fmtAirportTime(
+                      s.arrUtc,
+                      s.destination
+                    )}{" "}
+                    {
+                      AIRPORT_TIME_INFO[
+                        s.destination
+                      ]?.label
+                    }
+                  </div>
+
+                  <div className="text-xs text-gray-400 mt-1">
+                    {
+                      AIRPORT_TIME_INFO[
+                        s.destination
+                      ]?.city
+                    }{" "}
+                    Local Time
                   </div>
                 </div>
+
               </div>
 
               {/* Book */}
@@ -417,6 +453,7 @@ export default function Flights() {
                   Book Flight
                 </button>
               </div>
+
             </div>
           ))}
         </div>
@@ -433,7 +470,6 @@ export default function Flights() {
 
               <div className="space-y-4">
 
-                {/* First Name */}
                 <input
                   placeholder="First Name"
                   value={firstName}
@@ -442,10 +478,9 @@ export default function Flights() {
                       e.target.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:border-blue-500 transition"
+                  className="w-full border border-gray-300 rounded-xl p-3"
                 />
 
-                {/* Last Name */}
                 <input
                   placeholder="Last Name"
                   value={lastName}
@@ -454,10 +489,9 @@ export default function Flights() {
                       e.target.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:border-blue-500 transition"
+                  className="w-full border border-gray-300 rounded-xl p-3"
                 />
 
-                {/* Gender */}
                 <select
                   value={gender}
                   onChange={(e) =>
@@ -465,7 +499,7 @@ export default function Flights() {
                       e.target.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:border-blue-500 transition"
+                  className="w-full border border-gray-300 rounded-xl p-3"
                 >
                   <option value="M">
                     Male
@@ -476,7 +510,6 @@ export default function Flights() {
                   </option>
                 </select>
 
-                {/* Email */}
                 <input
                   type="email"
                   placeholder="Email"
@@ -486,7 +519,7 @@ export default function Flights() {
                       e.target.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:border-blue-500 transition"
+                  className="w-full border border-gray-300 rounded-xl p-3"
                 />
 
               </div>
@@ -500,7 +533,7 @@ export default function Flights() {
                       null
                     )
                   }
-                  className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 transition"
+                  className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300"
                 >
                   Cancel
                 </button>
@@ -509,7 +542,7 @@ export default function Flights() {
                   onClick={
                     confirmBooking
                   }
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition"
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Confirm Booking
                 </button>
