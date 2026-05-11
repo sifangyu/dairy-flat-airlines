@@ -4,11 +4,16 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import { AIRPORT_NAMES } from "@/lib/airports";
+import { AIRPORT_TIMEZONES } from "@/lib/timezones";
 
-const fmtLocal = (utc: number) => {
+const fmtAirportTime = (
+  utc: number,
+  airportCode: string
+) => {
   return new Date(utc).toLocaleString("en-NZ", {
     dateStyle: "long",
     timeStyle: "short",
+    timeZone: AIRPORT_TIMEZONES[airportCode],
   });
 };
 
@@ -95,14 +100,20 @@ function InvoiceContent() {
               <div className="flex justify-between">
                 <span className="text-gray-500">Departure</span>
                 <span>
-                  {fmtLocal(Number(params.get("depUtc")))}
+                  {fmtAirportTime(
+                    Number(params.get("depUtc")),
+                    params.get("origin") || ""
+                  )}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Arrival</span>
                 <span>
-                  {fmtLocal(Number(params.get("arrUtc")))}
+                  {fmtAirportTime(
+                    Number(params.get("arrUtc")),
+                    params.get("destination") || ""
+                    )}
                 </span>
               </div>
 
