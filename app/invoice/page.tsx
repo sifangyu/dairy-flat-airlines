@@ -4,16 +4,18 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import { AIRPORT_NAMES } from "@/lib/airports";
-import { AIRPORT_TIMEZONES } from "@/lib/timezones";
+import { AIRPORT_TIME_INFO } from "@/lib/timezones";
 
 const fmtAirportTime = (
   utc: number,
   airportCode: string
 ) => {
+  const info = AIRPORT_TIME_INFO[airportCode];
+
   return new Date(utc).toLocaleString("en-NZ", {
     dateStyle: "long",
     timeStyle: "short",
-    timeZone: AIRPORT_TIMEZONES[airportCode],
+    timeZone: info.timezone,
   });
 };
 
@@ -24,6 +26,9 @@ function InvoiceContent() {
   const ref = params.get("ref");
   const name = params.get("name");
   const email = params.get("email");
+
+  const origin = params.get("origin") || "";
+  const destination = params.get("destination") || "";
 
   const [seat, setSeat] = useState("");
   const [gate, setGate] = useState("");
@@ -49,87 +54,147 @@ function InvoiceContent() {
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-6 py-16">
+
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
 
+          {/* Header */}
           <div className="bg-blue-600 text-white text-center py-6">
             <h1 className="text-3xl font-bold">
               ✈ Dairy Flat Airlines
             </h1>
+
             <p className="opacity-80 text-sm">
               Official Booking Receipt
             </p>
           </div>
 
+          {/* Body */}
           <div className="p-10 space-y-5 text-gray-700">
 
+            {/* Passenger */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+
               <div className="flex justify-between">
-                <span className="text-gray-500">Booking Ref</span>
-                <span className="font-mono font-bold">{ref}</span>
+                <span className="text-gray-500">
+                  Booking Ref
+                </span>
+
+                <span className="font-mono font-bold">
+                  {ref}
+                </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Passenger</span>
+                <span className="text-gray-500">
+                  Passenger
+                </span>
+
                 <span>{name}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Email</span>
+                <span className="text-gray-500">
+                  Email
+                </span>
+
                 <span>{email}</span>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            {/* Flight */}
+            <div className="bg-gray-50 rounded-lg p-4 space-y-4">
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Flight</span>
+                <span className="text-gray-500">
+                  Flight
+                </span>
+
                 <span className="font-semibold">
                   {params.get("flightNo")}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Route</span>
+                <span className="text-gray-500">
+                  Route
+                </span>
+
                 <span>
-                  {AIRPORT_NAMES[params.get("origin") || ""]} →
+                  {AIRPORT_NAMES[origin]} →
                   {" "}
-                  {AIRPORT_NAMES[params.get("destination") || ""]}
+                  {AIRPORT_NAMES[destination]}
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-gray-500">Departure</span>
-                <span>
-                  {fmtAirportTime(
-                    Number(params.get("depUtc")),
-                    params.get("origin") || ""
-                  )}
+              {/* Departure */}
+              <div className="flex justify-between items-start">
+                <span className="text-gray-500">
+                  Departure
                 </span>
+
+                <div className="text-right">
+                  <div className="font-medium">
+                    {fmtAirportTime(
+                      Number(params.get("depUtc")),
+                      origin
+                    )}{" "}
+                    {AIRPORT_TIME_INFO[origin]?.label}
+                  </div>
+
+                  <div className="text-xs text-gray-400">
+                    {AIRPORT_TIME_INFO[origin]?.city}
+                    {" "}
+                    ({origin}) Local Time
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrival */}
+              <div className="flex justify-between items-start">
+                <span className="text-gray-500">
+                  Arrival
+                </span>
+
+                <div className="text-right">
+                  <div className="font-medium">
+                    {fmtAirportTime(
+                      Number(params.get("arrUtc")),
+                      destination
+                    )}{" "}
+                    {AIRPORT_TIME_INFO[destination]?.label}
+                  </div>
+
+                  <div className="text-xs text-gray-400">
+                    {AIRPORT_TIME_INFO[destination]?.city}
+                    {" "}
+                    ({destination}) Local Time
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Arrival</span>
-                <span>
-                  {fmtAirportTime(
-                    Number(params.get("arrUtc")),
-                    params.get("destination") || ""
-                    )}
+                <span className="text-gray-500">
+                  Seat
                 </span>
-              </div>
 
-              <div className="flex justify-between">
-                <span className="text-gray-500">Seat</span>
                 <span>{seat}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-500">Gate</span>
+                <span className="text-gray-500">
+                  Gate
+                </span>
+
                 <span>{gate}</span>
               </div>
             </div>
 
+            {/* Price */}
             <div className="flex justify-between text-lg pt-4 border-t">
-              <span className="font-semibold">Total Fare</span>
+
+              <span className="font-semibold">
+                Total Fare
+              </span>
 
               <span className="text-blue-700 font-bold">
                 ${params.get("price")} NZD
@@ -137,6 +202,7 @@ function InvoiceContent() {
             </div>
           </div>
 
+          {/* Actions */}
           <div className="p-6 flex justify-center gap-4 bg-gray-50">
 
             <button
@@ -159,7 +225,6 @@ function InvoiceContent() {
             >
               Cancel Booking
             </button>
-
           </div>
         </div>
 

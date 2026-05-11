@@ -1,9 +1,32 @@
-export const AIRPORT_TIMEZONES: Record<string, string> = {
-  NZNE: "Pacific/Auckland",
-  NZRO: "Pacific/Auckland",
-  NZAA: "Pacific/Auckland",
+export const AIRPORT_TIME_INFO: Record<
+  string,
+  {
+    timezone: string;
+    city: string;
+    label: string;
+  }
+> = {
+  NZNE: {
+    timezone: "Pacific/Auckland",
+    city: "Auckland",
+    label: "NZST",
+  },
 
-  YSSY: "Australia/Sydney",
-  YMML: "Australia/Melbourne",
-  YBBN: "Australia/Brisbane",
+  NZRO: {
+    timezone: "Pacific/Auckland",
+    city: "Rotorua",
+    label: "NZST",
+  },
+
+  YSSY: {
+    timezone: "Australia/Sydney",
+    city: "Sydney",
+    label: "AEST",
+  },
+
+  YMML: {
+    timezone: "Australia/Melbourne",
+    city: "Melbourne",
+    label: "AEST",
+  },
 };
