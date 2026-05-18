@@ -229,27 +229,27 @@ export default function Flights() {
                 className="w-full border border-gray-300 rounded-xl p-3 shadow-sm focus:outline-none focus:border-blue-500 transition"
               >
                 <option value="NZNE">
-                  NZNE (Dairy Flat)
+                  Dairy Flat (NZNE)
                 </option>
 
                 <option value="YSSY">
-                  YSSY (Sydney)
+                  Sydney (YSSY)
                 </option>
 
                 <option value="NZRO">
-                  NZRO (Rotorua)
+                  Rotorua (NZRO)
                 </option>
 
                 <option value="NZCI">
-                  NZCI (Chatham)
+                  Chatham (NZCI)
                 </option>
 
                 <option value="NZGB">
-                  NZGB (Great Barrier)
+                  Great Barrier (NZGB)
                 </option>
 
                 <option value="NZTL">
-                  NZTL (Lake Tekapo)
+                  Lake Tekapo (NZTL)
                 </option>
               </select>
             </div>
@@ -276,7 +276,7 @@ export default function Flights() {
                     key={d}
                     value={d}
                   >
-                    {d}
+                    {AIRPORT_NAMES[d]}
                   </option>
                 ))}
               </select>

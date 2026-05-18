@@ -15,6 +15,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import "@elfalem/leaflet-curve";
+import { AIRPORT_NAMES } from "@/lib/airports";
 
 
 const DefaultIcon = L.icon({
@@ -246,11 +247,7 @@ export default function Map({
                   <div className="text-center min-w-[140px]">
 
                     <div className="font-bold text-blue-700 text-lg">
-                      {airport.name}
-                    </div>
-
-                    <div className="text-gray-500 text-sm mt-1">
-                      {code}
+                      {AIRPORT_NAMES[code]}
                     </div>
 
                   </div>

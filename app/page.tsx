@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
 
 import dynamic from "next/dynamic";
+import { AIRPORT_NAMES } from "@/lib/airports";
 
 const Map = dynamic(
   () => import("@/app/components/Map"),
@@ -200,7 +201,7 @@ export default function Home() {
                       key={d}
                       value={d}
                     >
-                      {d}
+                      {AIRPORT_NAMES[d]}
                     </option>
 
                   ))}
